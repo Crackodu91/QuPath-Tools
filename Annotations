@@ -1,0 +1,23 @@
+import qupath.lib.gui.QuPathGUI
+
+def project = getProject()
+
+// Map global pour accumuler les comptes sur toutes les images
+def globalCounts = [:].withDefault { 0 }
+
+project.getImageList().each { entry ->
+    def imageData = entry.readImageData()
+    def annotations = imageData.getHierarchy().getAnnotationObjects()
+    
+    annotations.countBy { it.getPathClass() }.each { pathClass, count ->
+        globalCounts[pathClass] += count
+    }
+}
+
+// Affichage
+println "=== Nombre d'annotations par classe (projet entier) ==="
+globalCounts.entrySet()
+            .sort { -it.getValue() }
+            .each { println "${it.getKey()}\t${it.getValue()}" }
+
+
